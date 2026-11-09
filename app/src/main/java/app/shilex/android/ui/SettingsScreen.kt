@@ -107,7 +107,48 @@ fun SettingsScreen(assistant: AssistantViewModel) {
                 FloatingOrb.sync(context)
             }
         }
-
+        Section("Border light") {
+            val border = remember { AppSettings(context) }
+            var borderOn by remember { mutableStateOf(border.borderLight) }
+            var colourIndex by remember { mutableStateOf(border.borderColor) }
+            var width by remember { mutableStateOf(border.borderSize.toFloat()) }
+            LifecycleResumeEffect(Unit) {
+                app.shilex.android.orb.BorderLight.sync(context)
+                onPauseOrDispose { }
+            }
+            SwitchRow(
+                "Glowing border",
+                "A light runs around the screen edge, even over other apps. It glows brighter and pulses with your voice while ${Branding.ASSISTANT_NAME} listens and speaks. Needs \"Display over other apps\".",
+                borderOn,
+            ) { on ->
+                borderOn = on
+                border.borderLight = on
+                if (on && !FloatingOrb.allowed(context)) {
+                    context.startActivity(
+                        Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    )
+                }
+                app.shilex.android.orb.BorderLight.sync(context)
+            }
+            InfoRow("Colour", app.shilex.android.orb.BorderLight.colourNames[colourIndex % 5]) {
+                TextButton(onClick = {
+                    colourIndex = (colourIndex + 1) % 5
+                    border.borderColor = colourIndex
+                    app.shilex.android.orb.BorderLight.sync(context)
+                }) { Text("Change") }
+            }
+            Text("Size", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 10.dp))
+            androidx.compose.material3.Slider(
+                value = width,
+                onValueChange = {
+                    width = it
+                    border.borderSize = it.toInt()
+                    app.shilex.android.orb.BorderLight.sync(context)
+                },
+                valueRange = 2f..16f,
+            )
+        }
         Section("Notifications") {
             var notifyOn by remember { mutableStateOf(NotificationWatch.allowed(context)) }
             LifecycleResumeEffect(Unit) {
