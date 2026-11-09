@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Display name lives here and in Branding.kt only. -->
-    <string name="app_name">JARVIS</string>
+    <string name="app_name">Masuka AI</string>
     <string name="control_label">Phone control (voice assistant)</string>
     <string name="control_description">Lets the assistant read what\'s on your screen and tap, type and scroll for you, only when you ask by voice. Taps that send, call, delete or pay wait for you to press Allow. It never reads banking, UPI, password or Settings apps, and doesn\'t store or upload what it reads except to answer you through Gemini.</string>
 </resources>
