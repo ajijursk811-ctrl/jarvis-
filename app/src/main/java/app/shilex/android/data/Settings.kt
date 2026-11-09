@@ -76,7 +76,18 @@ class Settings(context: Context) {
     var orbY: Int
         get() = prefs.getInt("orb_y", -1)
         set(value) = prefs.edit().putInt("orb_y", value).apply()
+     /** The glowing border light around the screen (needs "Display over other apps"). */
+    var borderLight: Boolean
+        get() = prefs.getBoolean("border_light", false)
+        set(value) = prefs.edit().putBoolean("border_light", value).apply()
 
+    var borderColor: Int
+        get() = prefs.getInt("border_color", 0)
+        set(value) = prefs.edit().putInt("border_color", value).apply()
+
+    var borderSize: Int
+        get() = prefs.getInt("border_size", 6)
+        set(value) = prefs.edit().putInt("border_size", value).apply()
     /** The last city asked about; weather questions without a city use it. */
     var homeCity: String
         get() = prefs.getString("home_city", "") ?: ""
