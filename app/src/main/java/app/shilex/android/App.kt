@@ -13,5 +13,6 @@ class App : Application() {
         super.onCreate()
         Diag.start(DiagFile(filesDir))
         FloatingOrb.sync(this)
+     app.shilex.android.orb.BorderLight.sync(this)
     }
 }
