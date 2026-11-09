@@ -99,6 +99,9 @@ private fun Content(
         },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
+                        if (tab == Tab.Home.ordinal) {
+                androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(app.shilex.android.R.drawable.masuka_bg), null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+            }
             when (Tab.entries[tab]) {
                 Tab.Home -> HomeScreen(
                     state = state,
