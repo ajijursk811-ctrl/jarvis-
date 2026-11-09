@@ -12,7 +12,7 @@ class Settings(context: Context) {
         set(value) = prefs.edit().putString("model", value).apply()
 
     var voice: String
-        get() = prefs.getString("voice", "Puck") ?: "Puck"
+        get() = prefs.getString("voice", "Aoede") ?: "Aoede"
         set(value) = prefs.edit().putString("voice", value).apply()
 
     /** "auto", "english", "hindi" or "hinglish", as on desktop. */
