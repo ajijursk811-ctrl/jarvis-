@@ -33,7 +33,24 @@ private val Dark = darkColorScheme(
     outlineVariant = Color(0xFF1F2836),
     error = Color(0xFFFF8A80),
 )
-
+private val Masuka = darkColorScheme(
+    primary = Color(0xFFB794FF),
+    onPrimary = Color(0xFF1B0B3F),
+    primaryContainer = Color(0xFF2E1B66),
+    onPrimaryContainer = Color(0xFFE9DDFF),
+    secondary = Color(0xFF9FA8FF),
+    tertiary = Color(0xFFFF7EB6),
+    background = Color(0xFF0A0620),
+    onBackground = Color(0xFFEDE8FF),
+    surface = Color(0xFF0A0620),
+    onSurface = Color(0xFFEDE8FF),
+    surfaceVariant = Color(0xFF1B1240),
+    onSurfaceVariant = Color(0xFFA99FD6),
+    surfaceContainer = Color(0xFF150D33),
+    outline = Color(0xFF3F3280),
+    outlineVariant = Color(0xFF2A2056),
+    error = Color(0xFFFF8A80),
+)
 private val Light = lightColorScheme(
     primary = Color(0xFF00708A),
     onPrimary = Color.White,
@@ -76,7 +93,7 @@ private val Corners = Shapes(
 @Composable
 fun ShilexTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) Dark else Light,
+        colorScheme = Masuka,
         typography = Type,
         shapes = Corners,
         content = content,
