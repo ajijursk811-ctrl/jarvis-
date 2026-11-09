@@ -8,6 +8,7 @@ object ControlRules {
     /** Apps JARVIS never reads or touches: money, passwords, its own screens, app installs. */
     private val BLOCKED_PACKAGES = setOf(
         "app.shilex.android",
+        "app.masuka.ai",
         "com.android.settings", // phone settings get their own tools; keeps Accessibility off-limits
         "com.android.vending",
         "com.google.android.apps.nbu.paisa.user", "net.one97.paytm", "com.phonepe.app",
