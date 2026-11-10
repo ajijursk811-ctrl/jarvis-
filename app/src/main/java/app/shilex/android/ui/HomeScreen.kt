@@ -115,7 +115,7 @@ fun HomeScreen(
         }
 
         Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-             AvatarVideo(
+            AvatarSlot(
                 phase = now.orb,
                 level = level,
                 modifier = Modifier
