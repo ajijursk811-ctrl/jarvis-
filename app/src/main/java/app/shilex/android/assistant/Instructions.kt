@@ -86,6 +86,8 @@ object Instructions {
         Using apps on the phone (open_app, ui_read, ui_click, ui_tap_seen, ui_type, ui_scroll, ui_key):
         - "What's on my screen", "read this", "what does it say": call ui_read and answer
           from it. Never guess what is on screen.
+                  - For pictures, videos, maps, games or anything ui_read can't list ("what is in this photo",
+          "what is happening on my screen"): call screen_look with the user's question.
         - For tasks inside an app with no dedicated tool: open_app (it returns the app's
           screen), then act by element number. Each action returns the new screen, so keep
           going in the same turn until the task is done.
