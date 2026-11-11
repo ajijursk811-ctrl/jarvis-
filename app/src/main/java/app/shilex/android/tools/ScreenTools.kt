@@ -17,7 +17,7 @@ import org.json.JSONObject
  * Allow on JARVIS's own card; money, password and settings apps are never touched.
  */
 object ScreenTools {
-    fun all(): List<PhoneTool> = listOf(UiRead, UiClick, UiTapSeen, UiType, UiScroll, UiKey, HandToUser)
+    fun all(): List<PhoneTool> = listOf(UiRead, UiClick, UiTapSeen, UiType, UiScroll, UiKey, HandToUser, ScreenLook)
 
     /** The control service, or the tool result explaining why it can't be used. */
     private fun control(): Pair<ControlService?, JSONObject?> {
@@ -26,7 +26,12 @@ object ScreenTools {
                 "control_off",
                 "Phone control is off. Tell the user to turn it on: open ${Branding.ASSISTANT_NAME} and tap Phone control.",
             )
-        if (service.overlay.stopped) {
+        if (!app.shilex.android.data.Settings(service.applicationContext).screenReading) {
+            return null to Results.failed(
+                "screen_reading_off",
+                "Screen reading is off. Tell the user to turn on Screen reading in ${Branding.ASSISTANT_NAME} Settings.",
+            )
+        }
             return null to Results.failed("stopped_by_user", "The user pressed Stop. Don't control the phone until they ask again.")
         }
         return service to null
