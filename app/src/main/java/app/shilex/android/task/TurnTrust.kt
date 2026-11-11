@@ -35,7 +35,7 @@ class TurnTrust {
 
         /** Tools whose results include another app's screen text or other people's notifications. */
         val READS_OUTSIDE_TEXT = setOf(
-            "ui_read", "ui_click", "ui_tap_seen", "ui_type", "ui_scroll", "ui_key", "open_app", "book_tickets",
+            "ui_read", "screen_look", "ui_click", "ui_tap_seen", "ui_type", "ui_scroll", "ui_key", "open_app", "book_tickets",
             "notifications_check", "hand_to_user", "calendar_list",
         )
     }
