@@ -24,7 +24,7 @@ object ScreenTools {
         val service = ControlService.instance
             ?: return null to Results.failed(
                 "control_off",
-                "Phone control is off. Tell the user to turn it on: open ${Branding.ASSISTANT_NAME} and tap Phone control.",
+                "Phone control isn't connected. Tell the user: in Android Accessibility, switch ${Branding.ASSISTANT_NAME} off and on again.",
             )
         if (!app.shilex.android.data.Settings(service.applicationContext).screenReading) {
             return null to Results.failed(
@@ -32,6 +32,7 @@ object ScreenTools {
                 "Screen reading is off. Tell the user to turn on Screen reading in ${Branding.ASSISTANT_NAME} Settings.",
             )
         }
+        if (service.overlay.stopped) {
             return null to Results.failed("stopped_by_user", "The user pressed Stop. Don't control the phone until they ask again.")
         }
         return service to null
