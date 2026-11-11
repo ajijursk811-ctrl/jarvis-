@@ -107,6 +107,33 @@ fun SettingsScreen(assistant: AssistantViewModel) {
                 FloatingOrb.sync(context)
             }
         }
+
+        Section("Screen reading") {
+            val reading = remember { AppSettings(context) }
+            var readingOn by remember { mutableStateOf(reading.screenReading) }
+            var connected by remember { mutableStateOf(app.shilex.android.control.ControlService.instance != null) }
+            LifecycleResumeEffect(Unit) {
+                connected = app.shilex.android.control.ControlService.instance != null
+                onPauseOrDispose { }
+            }
+            SwitchRow(
+                "Let ${Branding.ASSISTANT_NAME} see my screen",
+                "When on, ${Branding.ASSISTANT_NAME} can read the app in front and look at the screen (pictures, videos, games) when you ask \"what's on my screen?\". The screenshot goes to Gemini only for that question and is never stored. Banking, payment, password and Settings apps are never read.",
+                readingOn,
+            ) { on ->
+                readingOn = on
+                reading.screenReading = on
+            }
+            InfoRow(
+                "Connection",
+                if (connected) "Connected: ${Branding.ASSISTANT_NAME} can see the screen." else "Not connected. In Android Accessibility, switch ${Branding.ASSISTANT_NAME} off and on again.",
+            ) {
+                TextButton(onClick = {
+                    context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                }) { Text("Open") }
+            }
+        }
+
         Section("Border light") {
             val border = remember { AppSettings(context) }
             var borderOn by remember { mutableStateOf(border.borderLight) }
@@ -149,6 +176,7 @@ fun SettingsScreen(assistant: AssistantViewModel) {
                 valueRange = 2f..16f,
             )
         }
+
         Section("Notifications") {
             var notifyOn by remember { mutableStateOf(NotificationWatch.allowed(context)) }
             LifecycleResumeEffect(Unit) {
