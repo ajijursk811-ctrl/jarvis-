@@ -76,6 +76,10 @@ class Settings(context: Context) {
     var orbY: Int
         get() = prefs.getInt("orb_y", -1)
         set(value) = prefs.edit().putInt("orb_y", value).apply()
+            /** Lets the assistant read and look at the screen (needs phone control switched on). */
+    var screenReading: Boolean
+        get() = prefs.getBoolean("screen_reading", false)
+        set(value) = prefs.edit().putBoolean("screen_reading", value).apply()
      /** The glowing border light around the screen (needs "Display over other apps"). */
     var borderLight: Boolean
         get() = prefs.getBoolean("border_light", false)
