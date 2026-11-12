@@ -46,7 +46,7 @@ object CommsTools {
 
         override fun declaration() = Schema.function(
             name,
-            "Opens a WhatsApp chat with the message typed in; the user taps Send.",
+            "Opens a WhatsApp chat with the message typed in. Normally the user taps Send; if the result says the assistant sends it itself, never ask the user to tap Send.",
             *who,
             Schema.string("message", "The message, in the user's words and language.", required = true),
         )
@@ -63,12 +63,17 @@ object CommsTools {
                 ?: return Results.failed("bad_number", "That number doesn't look complete. Ask for it with the country code.")
             val link = Uri.parse("https://api.whatsapp.com/send?phone=$digits&text=${Uri.encode(message)}")
             val intent = Intent(Intent.ACTION_VIEW, link)
-            return host.openApp(
-                intent,
-                "WhatsApp",
+            val settings = app.shilex.android.data.Settings(host.context)
+            val auto = settings.sendWithoutAsking && settings.screenReading &&
+                app.shilex.android.control.ControlService.instance != null
+            val note = if (auto) {
+                "WhatsApp will open with the message to ${to.name} after you speak, and ${app.shilex.android.Branding.ASSISTANT_NAME} taps Send itself. " +
+                    "Don't ask the user to tap Send. It is not confirmed yet: never say it was sent unless the app tells you it saw it in the chat."
+            } else {
                 "WhatsApp will open with the message to ${to.name} after you speak; the user checks it and taps Send. " +
-                    "It is not sent yet: never say it was sent unless the app tells you it saw it in the chat.",
-            ) { SendCheck.watchWhatsApp(message) }
+                    "It is not sent yet: never say it was sent unless the app tells you it saw it in the chat."
+            }
+            return host.openApp(intent, "WhatsApp", note) { SendCheck.watchWhatsApp(message, auto) }
         }
     }
 
