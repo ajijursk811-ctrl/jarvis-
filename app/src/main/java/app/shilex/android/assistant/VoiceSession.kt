@@ -240,6 +240,8 @@ class VoiceSession private constructor(private val app: Application) : LiveClien
                 settings.replyLanguage,
                 java.time.ZonedDateTime.now(),
                 if (settings.learning) Habits.get(app).summary(java.time.LocalTime.now().hour) else "",
+                settings.mode,
+                settings.girlVoice,
             ),
             voice = settings.voice,
             languages = settings.speechLanguages,
