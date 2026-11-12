@@ -24,12 +24,12 @@ import app.shilex.android.MainActivity
 import app.shilex.android.assistant.Phase
 import app.shilex.android.assistant.VoiceSession
 import app.shilex.android.data.Settings
-import app.shilex.android.ui.Orb
+import app.shilex.android.ui.AvatarSprite
 import app.shilex.android.ui.ShilexTheme
 import kotlin.math.roundToInt
 
 /**
- * JARVIS's orb floating over every app, so it can be used without opening JARVIS: tap to talk
+ * Masuka (the character) floating over every app, so it can be used without opening JARVIS: tap to talk
  * (tap again to stop, or to cut in while it speaks), double-tap to type, drag to move; it
  * settles at the nearest side. Hidden while JARVIS's own screen is open, which has the big orb.
  */
@@ -51,19 +51,22 @@ object FloatingOrb {
 
     private fun show(context: Context) {
         val windows = context.getSystemService(WindowManager::class.java)
-        val size = (ORB_DP * context.resources.displayMetrics.density).roundToInt()
         val settings = Settings(context)
         val screen = context.resources.displayMetrics
+        val height = (settings.floatingSize * screen.density).roundToInt().coerceAtMost(screen.heightPixels)
+        val width = (height * 9f / 16f).roundToInt()
         val p = WindowManager.LayoutParams(
-            size,
-            size,
+            width,
+            height,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT,
         ).apply {
             gravity = Gravity.TOP or Gravity.START
-            x = settings.orbX.takeIf { it >= 0 } ?: (screen.widthPixels - size)
-            y = settings.orbY.takeIf { it >= 0 } ?: (screen.heightPixels * 0.6f).roundToInt()
+            x = (settings.orbX.takeIf { it >= 0 } ?: ((screen.widthPixels - width) / 2))
+                .coerceIn(0, (screen.widthPixels - width).coerceAtLeast(0))
+            y = (settings.orbY.takeIf { it >= 0 } ?: (screen.heightPixels * 0.35f).roundToInt())
+                .coerceIn(0, (screen.heightPixels - height).coerceAtLeast(0))
         }
         val orb = OverlayHost(context)
         orb.open {
@@ -88,7 +91,7 @@ object FloatingOrb {
                             )
                         },
                 ) {
-                    Orb(state.phase, Modifier.fillMaxSize(), level)
+                    AvatarSprite(state.phase, Modifier.fillMaxSize())
                 }
             }
         }
@@ -130,12 +133,9 @@ object FloatingOrb {
         update(context, p)
     }
 
-    /** Slides to the nearest side and remembers the spot. */
+    /** Stays where the user let go, and remembers the spot. */
     private fun settle(context: Context) {
         val p = params ?: return
-        val width = context.resources.displayMetrics.widthPixels
-        p.x = if (p.x + p.width / 2 < width / 2) 0 else width - p.width
-        update(context, p)
         Settings(context).apply {
             orbX = p.x
             orbY = p.y
@@ -152,5 +152,10 @@ object FloatingOrb {
         context.startActivity(Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
-    private const val ORB_DP = 64
+    /** Shows the character again, e.g. after its size was changed in Settings. */
+    fun reload(context: Context) {
+        val app = context.applicationContext
+        if (host != null) hide(app)
+        sync(app)
+    }
 }
