@@ -82,6 +82,11 @@ class Settings(context: Context) {
         get() = prefs.getInt("orb_x", -1)
         set(value) = prefs.edit().putInt("orb_x", value).apply()
 
+    /** Height of the floating character over other apps, in dp. */
+    var floatingSize: Int
+        get() = prefs.getInt("floating_size", 260)
+        set(value) = prefs.edit().putInt("floating_size", value).apply()
+
     var orbY: Int
         get() = prefs.getInt("orb_y", -1)
         set(value) = prefs.edit().putInt("orb_y", value).apply()
@@ -96,7 +101,7 @@ class Settings(context: Context) {
         set(value) = prefs.edit().putInt("border_color", value).apply()
 
     var borderSize: Int
-        get() = prefs.getInt("border_size", 6)
+        get() = prefs.getInt("border_size", 10)
         set(value) = prefs.edit().putInt("border_size", value).apply()
 
     /** Lets the assistant read and look at the screen (needs phone control switched on). */
