@@ -12,8 +12,17 @@ class Settings(context: Context) {
         set(value) = prefs.edit().putString("model", value).apply()
 
     var voice: String
-        get() = prefs.getString("voice", "Puck") ?: "Puck"
+        get() = prefs.getString("voice", "Aoede") ?: "Aoede"
         set(value) = prefs.edit().putString("voice", value).apply()
+
+    /** True when the chosen voice is one of the girl voices; the assistant then talks as a girl too. */
+    val girlVoice: Boolean
+        get() = voice in GIRL_VOICES
+
+    /** "girlfriend", "friend", "assistant" or "agent". */
+    var mode: String
+        get() = prefs.getString("mode", "girlfriend") ?: "girlfriend"
+        set(value) = prefs.edit().putString("mode", value).apply()
 
     /** "auto", "english", "hindi" or "hinglish", as on desktop. */
     var replyLanguage: String
@@ -117,5 +126,15 @@ class Settings(context: Context) {
 
     companion object {
         const val DEFAULT_MODEL = "gemini-3.1-flash-live-preview"
+
+        /** Gemini Live voices that sound like a girl, and like a boy (as far as Google describes them). */
+        val GIRL_VOICES = listOf("Aoede", "Kore", "Leda", "Zephyr")
+        val BOY_VOICES = listOf("Puck", "Charon", "Fenrir", "Orus")
+        val MODE_LABELS = linkedMapOf(
+            "girlfriend" to "Girlfriend",
+            "friend" to "Friend",
+            "assistant" to "Assistant",
+            "agent" to "Agent",
+        )
     }
 }
