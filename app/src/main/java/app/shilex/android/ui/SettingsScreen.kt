@@ -108,6 +108,35 @@ fun SettingsScreen(assistant: AssistantViewModel) {
             }
         }
 
+        Section("Voice and mode") {
+            val vm = remember { AppSettings(context) }
+            var voice by remember { mutableStateOf(vm.voice) }
+            var mode by remember { mutableStateOf(vm.mode) }
+            val girl = voice in AppSettings.GIRL_VOICES
+            SwitchRow(
+                "Girl voice",
+                "On: a girl's voice. Off: a boy's voice. ${Branding.ASSISTANT_NAME} talks as a girl or a boy to match. Applies from the next conversation.",
+                girl,
+            ) { on ->
+                voice = if (on) AppSettings.GIRL_VOICES.first() else AppSettings.BOY_VOICES.first()
+                vm.voice = voice
+            }
+            InfoRow("Voice name", voice) {
+                TextButton(onClick = {
+                    val list = if (girl) AppSettings.GIRL_VOICES else AppSettings.BOY_VOICES
+                    voice = list[(list.indexOf(voice) + 1) % list.size]
+                    vm.voice = voice
+                }) { Text("Change") }
+            }
+            InfoRow("Mode", AppSettings.MODE_LABELS[mode] ?: "Girlfriend") {
+                TextButton(onClick = {
+                    val keys = AppSettings.MODE_LABELS.keys.toList()
+                    mode = keys[(keys.indexOf(mode) + 1) % keys.size]
+                    vm.mode = mode
+                }) { Text("Change") }
+            }
+        }
+
         Section("Screen reading") {
             val reading = remember { AppSettings(context) }
             var readingOn by remember { mutableStateOf(reading.screenReading) }
