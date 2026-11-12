@@ -12,7 +12,7 @@ class Settings(context: Context) {
         set(value) = prefs.edit().putString("model", value).apply()
 
     var voice: String
-        get() = prefs.getString("voice", "Aoede") ?: "Aoede"
+        get() = prefs.getString("voice", "Puck") ?: "Puck"
         set(value) = prefs.edit().putString("voice", value).apply()
 
     /** "auto", "english", "hindi" or "hinglish", as on desktop. */
@@ -76,11 +76,8 @@ class Settings(context: Context) {
     var orbY: Int
         get() = prefs.getInt("orb_y", -1)
         set(value) = prefs.edit().putInt("orb_y", value).apply()
-            /** Lets the assistant read and look at the screen (needs phone control switched on). */
-    var screenReading: Boolean
-        get() = prefs.getBoolean("screen_reading", false)
-        set(value) = prefs.edit().putBoolean("screen_reading", value).apply()
-     /** The glowing border light around the screen (needs "Display over other apps"). */
+
+    /** The glowing border light around the screen (needs "Display over other apps"). */
     var borderLight: Boolean
         get() = prefs.getBoolean("border_light", false)
         set(value) = prefs.edit().putBoolean("border_light", value).apply()
@@ -92,6 +89,17 @@ class Settings(context: Context) {
     var borderSize: Int
         get() = prefs.getInt("border_size", 6)
         set(value) = prefs.edit().putInt("border_size", value).apply()
+
+    /** Lets the assistant read and look at the screen (needs phone control switched on). */
+    var screenReading: Boolean
+        get() = prefs.getBoolean("screen_reading", false)
+        set(value) = prefs.edit().putBoolean("screen_reading", value).apply()
+
+    /** Taps Send itself after typing a message, instead of waiting for the user's tap. */
+    var sendWithoutAsking: Boolean
+        get() = prefs.getBoolean("send_without_asking", false)
+        set(value) = prefs.edit().putBoolean("send_without_asking", value).apply()
+
     /** The last city asked about; weather questions without a city use it. */
     var homeCity: String
         get() = prefs.getString("home_city", "") ?: ""
