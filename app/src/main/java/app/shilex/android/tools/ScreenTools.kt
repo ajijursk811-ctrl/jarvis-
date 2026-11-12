@@ -19,6 +19,9 @@ import org.json.JSONObject
 object ScreenTools {
     fun all(): List<PhoneTool> = listOf(UiRead, UiClick, UiTapSeen, UiType, UiScroll, UiKey, HandToUser, ScreenLook)
 
+    /** A plain Send button: with "Send messages without asking" on, tapping it skips the Allow card. */
+    private val SEND_ONLY = Regex("(?i)\\s*(send|reply|भेजें|भेजे|bhejo|bhejein)\\s*")
+
     /** The control service, or the tool result explaining why it can't be used. */
     private fun control(): Pair<ControlService?, JSONObject?> {
         val service = ControlService.instance
@@ -107,7 +110,9 @@ object ScreenTools {
             val label = service.labelOf(target)
             val risk = ControlRules.clickRisk(label, target.viewIdResourceName.orEmpty())
             if (risk == ControlRules.Risk.Money) return payment(label)
-            if (risk != ControlRules.Risk.Safe) {
+            val sendFreely = risk == ControlRules.Risk.Outgoing && SEND_ONLY.matches(label) &&
+                app.shilex.android.data.Settings(service.applicationContext).sendWithoutAsking
+            if (risk != ControlRules.Risk.Safe && !sendFreely) {
                 val what = "Tap \"${ScreenText.shorten(label.ifEmpty { "this button" })}\""
                 if (!service.overlay.confirm(what)) {
                     return Results.failed("cancelled", "The user didn't allow it. Don't try again unless they ask.")
