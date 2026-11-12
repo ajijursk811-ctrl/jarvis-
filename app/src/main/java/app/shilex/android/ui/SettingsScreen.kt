@@ -106,6 +106,17 @@ fun SettingsScreen(assistant: AssistantViewModel) {
                 }
                 FloatingOrb.sync(context)
             }
+            var charSize by remember { mutableStateOf(prefs.floatingSize.toFloat()) }
+            Text("Character size", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 10.dp))
+            androidx.compose.material3.Slider(
+                value = charSize,
+                onValueChange = { charSize = it },
+                onValueChangeFinished = {
+                    prefs.floatingSize = charSize.toInt()
+                    FloatingOrb.reload(context)
+                },
+                valueRange = 120f..420f,
+            )
         }
 
         Section("Voice and mode") {
@@ -212,7 +223,7 @@ fun SettingsScreen(assistant: AssistantViewModel) {
                     border.borderSize = it.toInt()
                     app.shilex.android.orb.BorderLight.sync(context)
                 },
-                valueRange = 2f..16f,
+                valueRange = 3f..30f,
             )
         }
 

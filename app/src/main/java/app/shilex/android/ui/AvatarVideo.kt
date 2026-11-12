@@ -34,6 +34,24 @@ private const val TALKING = "talking.webp"
  */
 @Composable
 fun AvatarVideo(phase: Phase, level: Float, modifier: Modifier = Modifier) {
+    Box(modifier.fillMaxSize()) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.8f)
+                .align(Alignment.BottomCenter),
+        ) {
+            AvatarSprite(phase, Modifier.fillMaxSize())
+        }
+    }
+}
+
+/**
+ * The character on her own (no frame, no background): the animation for the current state,
+ * fading between states. Used on the Home screen and in the floating character over other apps.
+ */
+@Composable
+fun AvatarSprite(phase: Phase, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val present = remember { context.assets.list("")?.toSet().orEmpty() }
     val wanted = when (phase) {
@@ -42,16 +60,9 @@ fun AvatarVideo(phase: Phase, level: Float, modifier: Modifier = Modifier) {
         else -> IDLE
     }
     val current = if (wanted in present) wanted else IDLE
-    Box(modifier.fillMaxSize()) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.8f)
-                .align(Alignment.BottomCenter),
-        ) {
-            listOf(IDLE, THINKING, TALKING).filter { it in present }.forEach { name ->
-                AnimatedLayer(name, name == current)
-            }
+    Box(modifier) {
+        listOf(IDLE, THINKING, TALKING).filter { it in present }.forEach { name ->
+            AnimatedLayer(name, name == current)
         }
     }
 }
