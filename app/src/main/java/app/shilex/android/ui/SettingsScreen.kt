@@ -111,6 +111,7 @@ fun SettingsScreen(assistant: AssistantViewModel) {
         Section("Screen reading") {
             val reading = remember { AppSettings(context) }
             var readingOn by remember { mutableStateOf(reading.screenReading) }
+            var sendOn by remember { mutableStateOf(reading.sendWithoutAsking) }
             var connected by remember { mutableStateOf(app.shilex.android.control.ControlService.instance != null) }
             LifecycleResumeEffect(Unit) {
                 connected = app.shilex.android.control.ControlService.instance != null
@@ -123,6 +124,15 @@ fun SettingsScreen(assistant: AssistantViewModel) {
             ) { on ->
                 readingOn = on
                 reading.screenReading = on
+            }
+            SwitchRow(
+                "Send messages without asking",
+                "When on, ${Branding.ASSISTANT_NAME} taps Send itself after typing a message (WhatsApp, and Send buttons in other chat apps). Nothing waits for your tap, so check the name and the words when you speak. Calls, deleting and payments still ask or are refused. Needs Screen reading on.",
+                sendOn,
+                enabled = readingOn,
+            ) { on ->
+                sendOn = on
+                reading.sendWithoutAsking = on
             }
             InfoRow(
                 "Connection",
