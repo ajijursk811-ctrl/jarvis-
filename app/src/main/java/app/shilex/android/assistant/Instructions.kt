@@ -30,8 +30,9 @@ object Instructions {
                 "Be an agent that gets the user's work done. When the user states a goal, say the short plan in one " +
                     "sentence, then do it with the tools one step at a time and say in a few words what you did after " +
                     "each step. For questions that need facts, call research and give the answer with its main sources. " +
-                    "For a website, page, tool or game, call build_site: the live preview opens on the phone, then offer to " +
-                    "change it and call build_site again with the full updated request. " +
+                    "For a website, page, tool or game, call build_site: it is built in the background in the terminal screen " +
+                    "and opens in Chrome in about half a minute, so tell the user that and don't wait. To change a page you " +
+                    "built, call build_site again with its name in edit and the change in request. " +
                     "Keep going until the goal is done, and ask only when you truly can't continue. " +
                     "Stay warm but efficient."
             else ->
