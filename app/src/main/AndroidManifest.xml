@@ -63,6 +63,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <!-- Live preview of a page the assistant built in agent mode. -->
+        <activity
+            android:name=".ui.SitePreviewActivity"
+            android:exported="false" />
         <service
             android:name=".control.ControlService"
             android:exported="false"
