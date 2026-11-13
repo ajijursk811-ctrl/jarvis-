@@ -39,6 +39,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -48,6 +51,7 @@ import app.shilex.android.Branding
 import app.shilex.android.assistant.Line
 import app.shilex.android.assistant.Phase
 import app.shilex.android.assistant.UiState
+import app.shilex.android.data.Settings as AppSettings
 import app.shilex.android.learn.HabitKeys
 import app.shilex.android.local.ActivityLog
 import app.shilex.android.local.LocalCommand
@@ -106,11 +110,22 @@ fun HomeScreen(
         if (granted) onStart() else askMic.launch(Manifest.permission.RECORD_AUDIO)
     }
     val now = status(state, localPhase, wakeOn)
+    val modes = remember { AppSettings(context) }
+    var agentOn by remember { mutableStateOf(modes.mode == "agent") }
     val problem = state.problem != null && !now.live
 
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
         Row(Modifier.fillMaxWidth().padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(Branding.ASSISTANT_NAME, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            AgentChip(agentOn) {
+                if (agentOn) {
+                    modes.mode = modes.previousMode
+                } else {
+                    if (modes.mode != "agent") modes.previousMode = modes.mode
+                    modes.mode = "agent"
+                }
+                agentOn = modes.mode == "agent"
+            }
             Pill(now.badge, if (now.live) Accent else Muted)
         }
 
@@ -132,11 +147,11 @@ fun HomeScreen(
         }
 
         AnimatedContent(now.title, label = "status") { title ->
-            Text(title, style = MaterialTheme.typography.displaySmall, modifier = Modifier.fillMaxWidth())
+            Text(title, style = MaterialTheme.typography.displaySmall.copy(shadow = TEXT_SHADOW), modifier = Modifier.fillMaxWidth())
         }
         Text(
             now.hint,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium.copy(shadow = TEXT_SHADOW),
             color = if (problem) Warning else Muted,
             modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 16.dp),
         )
@@ -228,13 +243,12 @@ private fun Conversation(lines: List<Line>, modifier: Modifier) {
     LazyColumn(modifier, state = list, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(lines, key = { it.id }) { line ->
             Box(Modifier.fillMaxWidth(), contentAlignment = if (line.fromUser) Alignment.CenterEnd else Alignment.CenterStart) {
+                // No bubble: just the words over the character, so nothing hides her.
                 Text(
                     line.text,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (line.fromUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .background(if (line.fromUser) Accent else Surface, RoundedCornerShape(16.dp))
-                        .padding(horizontal = 14.dp, vertical = 9.dp),
+                    style = MaterialTheme.typography.bodyLarge.copy(shadow = TEXT_SHADOW),
+                    color = if (line.fromUser) Color(0xFFD9C8FF) else Color.White,
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
                 )
             }
         }
@@ -242,3 +256,26 @@ private fun Conversation(lines: List<Line>, modifier: Modifier) {
 }
 
 private const val TASK_SHOWN_MS = 2 * 60_000L
+
+/** A soft dark edge so the words stay readable on top of the character and the wallpaper. */
+private val TEXT_SHADOW = Shadow(Color.Black, Offset(0f, 2f), 10f)
+
+/** Top-right button: switches agent mode (research, build a site and preview it, do tasks) on and off. */
+@Composable
+private fun AgentChip(on: Boolean, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .padding(end = 8.dp)
+            .background(if (on) Accent else Surface, RoundedCornerShape(50))
+            .border(1.dp, if (on) Accent else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(50))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            if (on) "Agent ON" else "Agent",
+            style = MaterialTheme.typography.labelLarge,
+            color = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+        )
+    }
+}
