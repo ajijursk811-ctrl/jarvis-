@@ -1,6 +1,7 @@
 package app.shilex.android.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -117,6 +118,9 @@ fun HomeScreen(
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
         Row(Modifier.fillMaxWidth().padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(Branding.ASSISTANT_NAME, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            if (agentOn) {
+                AgentChip(false, "Terminal") { context.startActivity(Intent(context, TerminalActivity::class.java)) }
+            }
             AgentChip(agentOn) {
                 if (agentOn) {
                     modes.mode = modes.previousMode
@@ -262,7 +266,7 @@ private val TEXT_SHADOW = Shadow(Color.Black, Offset(0f, 2f), 10f)
 
 /** Top-right button: switches agent mode (research, build a site and preview it, do tasks) on and off. */
 @Composable
-private fun AgentChip(on: Boolean, onClick: () -> Unit) {
+private fun AgentChip(on: Boolean, label: String? = null, onClick: () -> Unit) {
     Box(
         Modifier
             .padding(end = 8.dp)
@@ -273,7 +277,7 @@ private fun AgentChip(on: Boolean, onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            if (on) "Agent ON" else "Agent",
+            label ?: if (on) "Agent ON" else "Agent",
             style = MaterialTheme.typography.labelLarge,
             color = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
         )
