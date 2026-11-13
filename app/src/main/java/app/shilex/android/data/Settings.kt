@@ -19,6 +19,11 @@ class Settings(context: Context) {
     val girlVoice: Boolean
         get() = voice in GIRL_VOICES
 
+    /** The mode to go back to when agent mode is switched off from the Home screen. */
+    var previousMode: String
+        get() = prefs.getString("previous_mode", "girlfriend") ?: "girlfriend"
+        set(value) = prefs.edit().putString("previous_mode", value).apply()
+
     /** "girlfriend", "friend", "assistant" or "agent". */
     var mode: String
         get() = prefs.getString("mode", "girlfriend") ?: "girlfriend"
