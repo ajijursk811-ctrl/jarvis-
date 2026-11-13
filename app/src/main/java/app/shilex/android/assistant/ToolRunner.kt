@@ -23,6 +23,7 @@ import app.shilex.android.R
 import app.shilex.android.control.ControlService
 import app.shilex.android.live.FunctionCall
 import app.shilex.android.live.FunctionResult
+import app.shilex.android.tools.AgentTools
 import app.shilex.android.tools.AppTools
 import app.shilex.android.tools.BookingTools
 import app.shilex.android.tools.CalendarTools
@@ -73,7 +74,7 @@ class ToolRunner(
 ) : ToolHost {
     private val tools = (
         CommsTools.all() + ClockTools.all() + ReminderTools.all() + MediaTools.all() + InfoTools.all() +
-            ScreenTools.all() + AppTools.all() + BookingTools.all() + DeviceTools.all() + NotifyTools.all() + CalendarTools.all() + MailTools.all() + MemoryTools.all()
+            ScreenTools.all() + AppTools.all() + BookingTools.all() + DeviceTools.all() + NotifyTools.all() + CalendarTools.all() + MailTools.all() + MemoryTools.all() + AgentTools.all()
         ).associateBy { it.name }
 
     private val duplicates = DuplicateGuard()
