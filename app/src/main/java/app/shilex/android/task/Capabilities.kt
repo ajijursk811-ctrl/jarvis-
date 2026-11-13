@@ -35,6 +35,8 @@ object Capabilities {
         Capability("open_web_search", "Search the web", Risk.Low),
         Capability("ui_read", "Read the screen", Risk.Medium),
         Capability("screen_look", "Look at the screen", Risk.Medium),
+        Capability("research", "Research the web", Risk.Low),
+        Capability("build_site", "Build a website", Risk.Medium),
         Capability("notifications_check", "Check notifications", Risk.Medium),
         Capability("watch_messages", "Watch messages", Risk.Low),
         Capability("reply_prepare", "Prepare a reply", Risk.Low),
