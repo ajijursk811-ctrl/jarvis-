@@ -67,6 +67,11 @@
         <activity
             android:name=".ui.SitePreviewActivity"
             android:exported="false" />
+        <!-- The agent's terminal: builds pages in the background and shows its progress. -->
+        <activity
+            android:name=".ui.TerminalActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <service
             android:name=".control.ControlService"
             android:exported="false"
