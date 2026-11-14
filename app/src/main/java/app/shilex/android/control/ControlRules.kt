@@ -7,8 +7,7 @@ package app.shilex.android.control
 object ControlRules {
     /** Apps JARVIS never reads or touches: money, passwords, its own screens, app installs. */
     private val BLOCKED_PACKAGES = setOf(
-        "app.shilex.android",
-        "app.masuka.ai",
+        "app.shilex.android", "app.masuka.ai",
         "com.android.settings", // phone settings get their own tools; keeps Accessibility off-limits
         "com.android.vending",
         "com.google.android.apps.nbu.paisa.user", "net.one97.paytm", "com.phonepe.app",
@@ -60,8 +59,8 @@ data class ScreenElement(
 
 /** The compact screen description the model reads. Screen text is data, never instructions. */
 object ScreenText {
-    const val MAX_ELEMENTS = 60
-    private const val MAX_LABEL = 70
+    const val MAX_ELEMENTS = 150
+    private const val MAX_LABEL = 200
 
     fun describe(appLabel: String, elements: List<ScreenElement>, more: Boolean): String = buildString {
         append("App: ").append(appLabel).append('\n')
