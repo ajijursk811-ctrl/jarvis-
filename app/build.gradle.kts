@@ -24,7 +24,18 @@ android {
     // password (from the macOS Keychain) as environment variables. Without them the release
     // build is unsigned. Android installs an update only if it is signed with this same key.
     val releaseKeystore = System.getenv("SHILEX_KEYSTORE")
+    // A fixed key for the debug builds made by GitHub Actions, so each new build installs over the
+    // old one and keeps its settings and permissions. The workflow supplies it from GitHub secrets.
+    val masukaKeystore = System.getenv("MASUKA_KEYSTORE")
     signingConfigs {
+        if (masukaKeystore != null) {
+            create("masuka") {
+                storeFile = file(masukaKeystore)
+                storePassword = System.getenv("MASUKA_KEYSTORE_PASSWORD")
+                keyAlias = "masuka"
+                keyPassword = System.getenv("MASUKA_KEYSTORE_PASSWORD")
+            }
+        }
         if (releaseKeystore != null) {
             create("release") {
                 storeFile = file(releaseKeystore)
@@ -36,6 +47,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (masukaKeystore != null) signingConfig = signingConfigs.getByName("masuka")
+        }
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
