@@ -249,7 +249,8 @@ private fun Conversation(lines: List<Line>, modifier: Modifier) {
             Box(Modifier.fillMaxWidth(), contentAlignment = if (line.fromUser) Alignment.CenterEnd else Alignment.CenterStart) {
                 // No bubble: just the words over the character, so nothing hides her.
                 Text(
-                    line.text,
+                    // Hindi shown in English letters (Hinglish), as the user asked
+                    Romanize.text(line.text),
                     style = MaterialTheme.typography.bodyLarge.copy(shadow = TEXT_SHADOW),
                     color = if (line.fromUser) Color(0xFFD9C8FF) else Color.White,
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
