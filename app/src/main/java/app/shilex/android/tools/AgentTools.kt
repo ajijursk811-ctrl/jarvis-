@@ -1,6 +1,10 @@
 package app.shilex.android.tools
 
+import android.accessibilityservice.AccessibilityService
 import android.content.Intent
+import android.os.Build
+import app.shilex.android.Branding
+import app.shilex.android.control.ControlService
 import app.shilex.android.Diag
 import app.shilex.android.data.KeyVault
 import app.shilex.android.ui.TerminalActivity
@@ -21,7 +25,7 @@ import java.util.concurrent.TimeUnit
  * HTML file, built in the background by the terminal and opened in Chrome).
  */
 object AgentTools {
-    fun all(): List<PhoneTool> = listOf(Research, BuildSite)
+    fun all(): List<PhoneTool> = listOf(Research, BuildSite, LockPhone)
 }
 
 object Research : PhoneTool {
@@ -74,6 +78,33 @@ object BuildSite : PhoneTool {
             "I started building \"$title\". The terminal screen opens after you speak and shows the progress; it takes " +
                 "about half a minute and then opens in Chrome. Tell the user that in one short sentence and don't wait.",
         )
+    }
+}
+
+/** "Masuka, phone lock kar do": locks the screen like the power button, through phone control. */
+object LockPhone : PhoneTool {
+    override val name = "lock_phone"
+
+    override fun declaration() = Schema.function(
+        name,
+        "Locks the phone screen, like pressing the power button. Use it when the user says lock the phone, " +
+            "screen off, or \"phone lock kar do\".",
+    )
+
+    override suspend fun run(args: JSONObject, host: ToolHost): JSONObject {
+        val service = ControlService.instance ?: return Results.failed(
+            "control_off",
+            "Phone control isn't connected. Tell the user: in Android Accessibility, switch " +
+                "${Branding.ASSISTANT_NAME} off and on again.",
+        )
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return Results.failed("unsupported", "This Android is too old to lock the screen this way.")
+        }
+        return if (service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)) {
+            Results.done("The phone is locked.")
+        } else {
+            Results.failed("lock_failed", "The phone didn't lock.")
+        }
     }
 }
 
