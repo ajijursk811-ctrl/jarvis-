@@ -118,9 +118,6 @@ fun HomeScreen(
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
         Row(Modifier.fillMaxWidth().padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(Branding.ASSISTANT_NAME, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-            if (agentOn) {
-                AgentChip(false, "Terminal") { context.startActivity(Intent(context, TerminalActivity::class.java)) }
-            }
             AgentChip(agentOn) {
                 if (agentOn) {
                     modes.mode = modes.previousMode
@@ -131,6 +128,12 @@ fun HomeScreen(
                 agentOn = modes.mode == "agent"
             }
             Pill(now.badge, if (now.live) Accent else Muted)
+        }
+        Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.End) {
+            AgentChip(false, "Camera") { context.startActivity(Intent(context, VisionActivity::class.java)) }
+            if (agentOn) {
+                AgentChip(false, "Terminal") { context.startActivity(Intent(context, TerminalActivity::class.java)) }
+            }
         }
 
         Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
