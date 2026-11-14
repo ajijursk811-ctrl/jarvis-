@@ -15,11 +15,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
@@ -167,6 +170,9 @@ private fun VisionScreen(activity: VisionActivity, startImage: Bitmap?, startQue
     var busy by remember { mutableStateOf(false) }
     var back by remember { mutableStateOf(true) }
     var ready by remember { mutableStateOf(false) }
+    var warm by remember { mutableStateOf(false) }
+    var torch by remember { mutableStateOf(false) }
+    var camera by remember { mutableStateOf<Camera?>(null) }
     var voiceOn by remember { mutableStateOf(true) }
     var count by remember { mutableStateOf(0) }
     var allowed by remember {
@@ -182,8 +188,14 @@ private fun VisionScreen(activity: VisionActivity, startImage: Bitmap?, startQue
             }
         }
     }
-    val previewView = remember { PreviewView(context) }
-    val capture = remember { ImageCapture.Builder().build() }
+    // COMPATIBLE draws the preview on a normal view, which shows up reliably inside Compose.
+    val previewView = remember {
+        PreviewView(context).apply {
+            implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+            scaleType = PreviewView.ScaleType.FIT_CENTER
+        }
+    }
+    val capture = remember { ImageCapture.Builder().setFlashMode(ImageCapture.FLASH_MODE_AUTO).build() }
 
     fun ask() {
         val bitmap = photo ?: return
@@ -234,11 +246,16 @@ private fun VisionScreen(activity: VisionActivity, startImage: Bitmap?, startQue
                         val preview = Preview.Builder().build()
                         preview.setSurfaceProvider(previewView.surfaceProvider)
                         provider.unbindAll()
-                        provider.bindToLifecycle(
+                        val bound = provider.bindToLifecycle(
                             activity,
                             if (back) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA,
                             preview,
                             capture,
+                        )
+                        camera = bound
+                        // Let the camera settle its focus and brightness on the middle of the picture.
+                        bound.cameraControl.startFocusAndMetering(
+                            FocusMeteringAction.Builder(SurfaceOrientedMeteringPointFactory(1f, 1f).createPoint(0.5f, 0.5f)).build(),
                         )
                         ready = true
                     }
@@ -247,14 +264,26 @@ private fun VisionScreen(activity: VisionActivity, startImage: Bitmap?, startQue
             )
         }
         onDispose {
+            runCatching { camera?.cameraControl?.enableTorch(false) }
+            torch = false
             if (showing) runCatching { ProcessCameraProvider.getInstance(context).get().unbindAll() }
             ready = false
+            camera = null
+        }
+    }
+
+    // A photo taken the moment the camera starts comes out dark: give it a moment first.
+    LaunchedEffect(ready) {
+        warm = false
+        if (ready) {
+            delay(1200)
+            warm = true
         }
     }
 
     // Opened by voice ("ye kya hai?"): count down 3, 2, 1 and take the photo by itself.
-    LaunchedEffect(ready, auto) {
-        if (auto && ready && photo == null) {
+    LaunchedEffect(warm, auto) {
+        if (auto && warm && photo == null) {
             for (n in 3 downTo 1) {
                 count = n
                 delay(1000)
@@ -283,6 +312,12 @@ private fun VisionScreen(activity: VisionActivity, startImage: Bitmap?, startQue
                 Text("Camera ki permission chahiye. Dobara koshish karne ke liye Gallery chuno ya permission do.", color = Color.White, textAlign = TextAlign.Center, modifier = Modifier.padding(24.dp))
             }
             if (busy) CircularProgressIndicator()
+            if (photo == null && allowed && !ready) {
+                Text("Camera taiyar ho raha hai...", color = Color.White, modifier = Modifier.padding(24.dp))
+            }
+        }
+        if (busy) {
+            Text("Dekh rahi hoon...", color = Color.White, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
         }
         if (answer.isNotEmpty()) {
             Text(
@@ -300,8 +335,12 @@ private fun VisionScreen(activity: VisionActivity, startImage: Bitmap?, startQue
         )
         Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
             if (photo == null) {
-                Button(onClick = { if (allowed && ready) takePhoto() }) { Text("Photo kheencho") }
+                Button(onClick = { if (allowed && warm) takePhoto() }) { Text(if (warm) "Photo kheencho" else "Ruko...") }
                 TextButton(onClick = { back = !back }) { Text("Flip") }
+                TextButton(onClick = {
+                    torch = !torch
+                    camera?.cameraControl?.enableTorch(torch)
+                }) { Text(if (torch) "Light: on" else "Light") }
             } else {
                 Button(onClick = { ask() }) { Text("Poochho") }
                 TextButton(onClick = {
