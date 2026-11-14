@@ -16,9 +16,18 @@ jobs:
           if [ -n "$KEYSTORE_B64" ]; then
             echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/masuka.p12"
             echo "MASUKA_KEYSTORE=$RUNNER_TEMP/masuka.p12" >> "$GITHUB_ENV"
+            echo "Secret MASUKA_KEYSTORE_B64 found: the fixed key will be used."
+          else
+            echo "Secret MASUKA_KEYSTORE_B64 is EMPTY or missing: a random key will be used."
           fi
       - run: chmod +x gradlew && ./gradlew :app:assembleDebug
         env:
           MASUKA_KEYSTORE_PASSWORD: ${{ secrets.MASUKA_KEYSTORE_PASSWORD }}
+      - name: Which key signed the APK?
+        run: |
+          APKSIGNER=$(ls $ANDROID_HOME/build-tools/*/apksigner | tail -1)
+          echo "=== APK signing certificate (this must be the SAME in every build) ==="
+          $APKSIGNER verify --print-certs app/build/outputs/apk/debug/app-debug.apk | grep -i "SHA-256" | head -1
+          if [ -n "$MASUKA_KEYSTORE" ]; then echo "Fixed Masuka key: USED"; else echo "Fixed Masuka key: NOT USED (a secret is missing)"; fi
       - uses: actions/upload-artifact@v4
         with: {name: jarvis-debug, path: app/build/outputs/apk/debug/*.apk}
