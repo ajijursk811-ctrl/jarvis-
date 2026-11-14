@@ -136,13 +136,16 @@ object LockPhone : PhoneTool {
     }
 }
 
-/** What one Gemini text request returned: the text, or why it failed. */
-internal class Gen(val text: String?, val error: String = "")
+/** What one Gemini text request returned: the text, or why it failed (and whether another model may work). */
+internal class Gen(val text: String?, val error: String = "", val retry: Boolean = false)
 
-/** One Gemini text request over REST, with the user's own key. */
+/**
+ * One Gemini text request over REST, with the user's own key. When Gemini is busy (HTTP 503), over
+ * its limit or doesn't know a model name, it quietly tries the next model in [MODELS].
+ */
 internal object GeminiText {
     private const val ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models"
-    private const val MODEL = "gemini-flash-latest"
+    private val MODELS = listOf("gemini-flash-latest", "gemini-2.5-flash", "gemini-flash-lite-latest", "gemini-2.5-flash-lite")
 
     fun generate(
         http: OkHttpClient,
@@ -159,17 +162,32 @@ internal object GeminiText {
             .put("contents", JSONArray().put(JSONObject().put("role", "user").put("parts", userParts(prompt, imageBase64))))
             .put("generationConfig", JSONObject().put("temperature", if (search) 0.3 else 0.6).put("maxOutputTokens", maxTokens))
         if (search) body.put("tools", JSONArray().put(JSONObject().put("google_search", JSONObject())))
+        val deadline = System.currentTimeMillis() + seconds * 1000
+        var last = Gen(null, "no answer")
+        for ((index, model) in MODELS.withIndex()) {
+            val left = deadline - System.currentTimeMillis()
+            if (left < 4_000) break
+            val gen = once(http, key, body, model, left)
+            if (gen.text != null || !gen.retry) return gen
+            last = gen
+            if (index == 0) Thread.sleep(800)
+        }
+        return last
+    }
+
+    private fun once(http: OkHttpClient, key: String, body: JSONObject, model: String, millis: Long): Gen {
         val request = Request.Builder()
-            .url("$ENDPOINT/$MODEL:generateContent")
+            .url("$ENDPOINT/$model:generateContent")
             .header("x-goog-api-key", key)
             .post(body.toString().toRequestBody("application/json".toMediaType()))
             .build()
-        val client = http.newBuilder().callTimeout(seconds, TimeUnit.SECONDS).readTimeout(seconds, TimeUnit.SECONDS).build()
+        val client = http.newBuilder().callTimeout(millis, TimeUnit.MILLISECONDS).readTimeout(millis, TimeUnit.MILLISECONDS).build()
         return try {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
-                    Diag.w("gemini text: HTTP ${response.code}")
-                    return Gen(null, httpReason(response.code))
+                    Diag.w("gemini text: $model HTTP ${response.code}")
+                    val another = response.code == 404 || response.code == 429 || response.code in 500..599
+                    return Gen(null, httpReason(response.code), retry = another)
                 }
                 val root = JSONObject(response.body!!.string())
                 val candidate = root.getJSONArray("candidates").getJSONObject(0)
@@ -177,14 +195,14 @@ internal object GeminiText {
                 val text = buildString {
                     for (i in 0 until parts.length()) append(parts.getJSONObject(i).optString("text"))
                 }.trim()
-                if (text.isEmpty()) Gen(null, "Gemini sent an empty reply") else Gen(text + sources(candidate))
+                if (text.isEmpty()) Gen(null, "Gemini sent an empty reply", retry = true) else Gen(text + sources(candidate))
             }
         } catch (e: IOException) {
             Diag.w("gemini text: ${e.javaClass.simpleName}")
             Gen(null, "no internet, or it took too long (${e.javaClass.simpleName})")
         } catch (e: Exception) {
             Diag.w("gemini text: ${e.javaClass.simpleName}")
-            Gen(null, "Gemini sent a reply I couldn't read (${e.javaClass.simpleName})")
+            Gen(null, "Gemini sent a reply I couldn't read (${e.javaClass.simpleName})", retry = true)
         }
     }
 
