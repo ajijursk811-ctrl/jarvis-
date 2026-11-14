@@ -11,7 +11,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-applicationId = "app.masuka.ai"
+        applicationId = "app.shilex.android"
         minSdk = 29
         targetSdk = 35
         versionCode = 1
@@ -76,7 +76,11 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.okhttp)
-    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    // Camera vision (CameraX).
+    implementation("androidx.camera:camera-core:1.4.1")
+    implementation("androidx.camera:camera-camera2:1.4.1")
+    implementation("androidx.camera:camera-lifecycle:1.4.1")
+    implementation("androidx.camera:camera-view:1.4.1")
     // On-device wake word (openWakeWord ONNX models), MIT licence.
     implementation(libs.onnxruntime.android)
     // Offline speech for local commands (Vosk, Apache 2.0); the model comes from fetchVoskModel.
