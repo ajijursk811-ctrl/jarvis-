@@ -13,7 +13,7 @@ object Romanize {
         'प' to "p", 'फ' to "ph", 'ब' to "b", 'भ' to "bh", 'म' to "m",
         'य' to "y", 'र' to "r", 'ल' to "l", 'व' to "v", 'ळ' to "l",
         'श' to "sh", 'ष' to "sh", 'स' to "s", 'ह' to "h",
-        'क़' to "q", 'ख़' to "kh", 'ग़' to "g", 'ज़' to "z", 'ड़' to "r", 'ढ़' to "rh", 'फ़' to "f",
+        '\u0958' to "q", '\u0959' to "kh", '\u095A' to "g", '\u095B' to "z", '\u095C' to "r", '\u095D' to "rh", '\u095E' to "f",
     )
     private val nukta = mapOf('क' to "q", 'ख' to "kh", 'ग' to "g", 'ज' to "z", 'ड' to "r", 'ढ' to "rh", 'फ' to "f")
     private val vowels = mapOf(
@@ -24,8 +24,8 @@ object Romanize {
         'ा' to "a", 'ि' to "i", 'ी' to "i", 'ु' to "u", 'ू' to "u", 'े' to "e", 'ै' to "ai",
         'ो' to "o", 'ौ' to "au", 'ॉ' to "o", 'ृ' to "ri",
     )
-    private const val VIRAMA = '्'
-    private const val NUKTA = '़'
+    private const val VIRAMA = '\u094D'
+    private const val NUKTA = '\u093C'
 
     private fun isDevanagari(c: Char) = c in '\u0900'..'\u097F'
 
