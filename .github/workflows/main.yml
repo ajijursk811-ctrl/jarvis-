@@ -9,6 +9,16 @@ jobs:
         with: {distribution: temurin, java-version: 17}
       - run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null || true
       - run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "ndk;27.0.12077973" "cmake;3.22.1"
+      - name: Fixed signing key (from GitHub secrets)
+        env:
+          KEYSTORE_B64: ${{ secrets.MASUKA_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/masuka.p12"
+            echo "MASUKA_KEYSTORE=$RUNNER_TEMP/masuka.p12" >> "$GITHUB_ENV"
+          fi
       - run: chmod +x gradlew && ./gradlew :app:assembleDebug
+        env:
+          MASUKA_KEYSTORE_PASSWORD: ${{ secrets.MASUKA_KEYSTORE_PASSWORD }}
       - uses: actions/upload-artifact@v4
         with: {name: jarvis-debug, path: app/build/outputs/apk/debug/*.apk}
