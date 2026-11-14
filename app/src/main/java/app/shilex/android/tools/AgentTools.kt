@@ -8,6 +8,7 @@ import app.shilex.android.control.ControlService
 import app.shilex.android.Diag
 import app.shilex.android.data.KeyVault
 import app.shilex.android.ui.TerminalActivity
+import app.shilex.android.ui.VisionActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit
  * HTML file, built in the background by the terminal and opened in Chrome).
  */
 object AgentTools {
-    fun all(): List<PhoneTool> = listOf(Research, BuildSite, LockPhone)
+    fun all(): List<PhoneTool> = listOf(Research, BuildSite, LockPhone, LookCamera)
 }
 
 object Research : PhoneTool {
@@ -81,6 +82,33 @@ object BuildSite : PhoneTool {
     }
 }
 
+/** "Masuka, ye kya hai?": opens the camera, which takes a photo after a countdown and explains it. */
+object LookCamera : PhoneTool {
+    override val name = "look_camera"
+
+    override fun declaration() = Schema.function(
+        name,
+        "Opens the phone camera so the assistant can look at something in the real world and identify it " +
+            "(\"ye kya hai\", \"is cheez ko pehchano\", \"what plant is this\"). The photo is taken by itself after a " +
+            "3 second countdown, and the answer shows on screen and is read out. Use it whenever the user wants you to look " +
+            "through the camera.",
+        Schema.string("question", "What to find out, e.g. \"what plant is this\". Empty: identify what is seen."),
+    )
+
+    override suspend fun run(args: JSONObject, host: ToolHost): JSONObject {
+        val intent = Intent(host.context, VisionActivity::class.java)
+            .putExtra(VisionActivity.EXTRA_QUESTION, args.text("question"))
+            .putExtra(VisionActivity.EXTRA_AUTO, true)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        return host.openApp(
+            intent,
+            "Camera",
+            "The camera opens after you speak and takes the photo by itself in three seconds; the answer shows on screen " +
+                "and is read out. Tell the user in one short sentence to point the camera at the thing. Don't describe anything yourself.",
+        )
+    }
+}
+
 /** "Masuka, phone lock kar do": locks the screen like the power button, through phone control. */
 object LockPhone : PhoneTool {
     override val name = "lock_phone"
@@ -124,10 +152,11 @@ internal object GeminiText {
         search: Boolean,
         maxTokens: Int,
         seconds: Long,
+        imageBase64: String? = null,
     ): Gen {
         val body = JSONObject()
             .put("systemInstruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", system))))
-            .put("contents", JSONArray().put(JSONObject().put("role", "user").put("parts", JSONArray().put(JSONObject().put("text", prompt)))))
+            .put("contents", JSONArray().put(JSONObject().put("role", "user").put("parts", userParts(prompt, imageBase64))))
             .put("generationConfig", JSONObject().put("temperature", if (search) 0.3 else 0.6).put("maxOutputTokens", maxTokens))
         if (search) body.put("tools", JSONArray().put(JSONObject().put("google_search", JSONObject())))
         val request = Request.Builder()
@@ -157,6 +186,15 @@ internal object GeminiText {
             Diag.w("gemini text: ${e.javaClass.simpleName}")
             Gen(null, "Gemini sent a reply I couldn't read (${e.javaClass.simpleName})")
         }
+    }
+
+    /** The user's text, plus a picture when there is one. */
+    private fun userParts(prompt: String, imageBase64: String?): JSONArray {
+        val parts = JSONArray().put(JSONObject().put("text", prompt))
+        if (imageBase64 != null) {
+            parts.put(JSONObject().put("inline_data", JSONObject().put("mime_type", "image/jpeg").put("data", imageBase64)))
+        }
+        return parts
     }
 
     private fun httpReason(code: Int): String = when (code) {
