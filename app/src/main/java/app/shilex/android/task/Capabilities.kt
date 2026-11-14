@@ -38,6 +38,7 @@ object Capabilities {
         Capability("research", "Research the web", Risk.Low),
         Capability("build_site", "Build a website", Risk.Medium),
         Capability("lock_phone", "Lock the phone", Risk.Low),
+        Capability("look_camera", "Look through the camera", Risk.Low),
         Capability("notifications_check", "Check notifications", Risk.Medium),
         Capability("watch_messages", "Watch messages", Risk.Low),
         Capability("reply_prepare", "Prepare a reply", Risk.Low),
