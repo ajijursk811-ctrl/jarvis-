@@ -50,6 +50,20 @@ class Settings(context: Context) {
         get() = prefs.getString("likes", "") ?: ""
         set(value) = prefs.edit().putString("likes", value).apply()
 
+    /** Sweet good morning, good night and special-day notifications (off until the user switches them on). */
+    var wishes: Boolean
+        get() = prefs.getBoolean("wishes", false)
+        set(value) = prefs.edit().putBoolean("wishes", value).apply()
+
+    /** "HH:MM". */
+    var morningTime: String
+        get() = prefs.getString("morning_time", "08:00") ?: "08:00"
+        set(value) = prefs.edit().putString("morning_time", value).apply()
+
+    var nightTime: String
+        get() = prefs.getString("night_time", "22:30") ?: "22:30"
+        set(value) = prefs.edit().putString("night_time", value).apply()
+
     /** Sweet, playful flirting (never explicit). */
     var flirty: Boolean
         get() = prefs.getBoolean("flirty", true)
