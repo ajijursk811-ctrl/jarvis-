@@ -85,6 +85,10 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
+        <!-- Live camera: Masuka sees it like a video call. -->
+        <activity
+            android:name=".ui.LiveCameraActivity"
+            android:exported="false" />
         <service
             android:name=".control.ControlService"
             android:exported="false"
