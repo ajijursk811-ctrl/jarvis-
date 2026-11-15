@@ -194,6 +194,50 @@ fun SettingsScreen(assistant: AssistantViewModel) {
             }
         }
 
+        Section("Sweet wishes") {
+            val wish = remember { AppSettings(context) }
+            var wishOn by remember { mutableStateOf(wish.wishes) }
+            var morning by remember { mutableStateOf(wish.morningTime) }
+            var night by remember { mutableStateOf(wish.nightTime) }
+            val askNotify = androidx.activity.compose.rememberLauncherForActivityResult(
+                androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
+            ) { }
+            SwitchRow(
+                "Good morning, good night and special days",
+                "A sweet notification at the times below, and on your birthday and special day. Tap it to open ${Branding.ASSISTANT_NAME}, or use Baat karo to call her. No guilt messages. Switch it off any time.",
+                wishOn,
+            ) { on ->
+                wishOn = on
+                wish.wishes = on
+                if (on && android.os.Build.VERSION.SDK_INT >= 33) {
+                    askNotify.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+                app.shilex.android.reminders.Wishes.schedule(context)
+            }
+            androidx.compose.material3.OutlinedTextField(
+                value = morning,
+                onValueChange = {
+                    morning = it
+                    wish.morningTime = it
+                    app.shilex.android.reminders.Wishes.schedule(context)
+                },
+                label = { Text("Good morning time (HH:MM, like 08:00)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+            androidx.compose.material3.OutlinedTextField(
+                value = night,
+                onValueChange = {
+                    night = it
+                    wish.nightTime = it
+                    app.shilex.android.reminders.Wishes.schedule(context)
+                },
+                label = { Text("Good night time (HH:MM, like 22:30)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+        }
+
         Section("Voice and mode") {
             val vm = remember { AppSettings(context) }
             var voice by remember { mutableStateOf(vm.voice) }
