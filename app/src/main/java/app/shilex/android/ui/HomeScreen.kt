@@ -130,7 +130,8 @@ fun HomeScreen(
             Pill(now.badge, if (now.live) Accent else Muted)
         }
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.End) {
-            AgentChip(false, "Camera") { context.startActivity(Intent(context, VisionActivity::class.java)) }
+            AgentChip(false, "Live camera") { context.startActivity(Intent(context, LiveCameraActivity::class.java)) }
+            AgentChip(false, "Photo") { context.startActivity(Intent(context, VisionActivity::class.java)) }
             if (agentOn) {
                 AgentChip(false, "Terminal") { context.startActivity(Intent(context, TerminalActivity::class.java)) }
             }
