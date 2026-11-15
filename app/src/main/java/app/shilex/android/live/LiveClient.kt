@@ -72,6 +72,10 @@ class LiveClient(private val http: OkHttpClient) {
         socket?.send(LiveProtocol.audioMessage(pcm))
     }
 
+    fun sendVideo(jpeg: ByteArray) {
+        socket?.send(LiveProtocol.videoMessage(jpeg))
+    }
+
     fun close() {
         val current = socket ?: return
         socket = null

@@ -74,6 +74,14 @@ object LiveProtocol {
         return JSONObject().put("realtimeInput", JSONObject().put("audio", audio)).toString()
     }
 
+    /** One picture from the live camera, sent as video (about one a second). */
+    fun videoMessage(jpeg: ByteArray): String {
+        val video = JSONObject()
+            .put("data", Base64.getEncoder().encodeToString(jpeg))
+            .put("mimeType", "image/jpeg")
+        return JSONObject().put("realtimeInput", JSONObject().put("video", video)).toString()
+    }
+
     /** Words the user already said, heard by the phone's own recogniser. */
     fun userTextMessage(text: String): String {
         val turn = JSONObject().put("role", "user").put("parts", JSONArray().put(JSONObject().put("text", text)))
