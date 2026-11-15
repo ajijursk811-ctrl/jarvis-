@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -117,6 +118,80 @@ fun SettingsScreen(assistant: AssistantViewModel) {
                 },
                 valueRange = 120f..420f,
             )
+        }
+
+        Section("Relationship") {
+            val rel = remember { AppSettings(context) }
+            var userName by remember { mutableStateOf(rel.userName) }
+            var callName by remember { mutableStateOf(rel.callName) }
+            var birthday by remember { mutableStateOf(rel.birthday) }
+            var special by remember { mutableStateOf(rel.specialDay) }
+            var specialName by remember { mutableStateOf(rel.specialDayName) }
+            var likes by remember { mutableStateOf(rel.likes) }
+            var flirty by remember { mutableStateOf(rel.flirty) }
+            var cute by remember { mutableStateOf(rel.cutePout) }
+            Text(
+                "What ${Branding.ASSISTANT_NAME} knows about you stays on this phone. It goes to Gemini only inside the conversation, and only when you talk.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            androidx.compose.material3.OutlinedTextField(
+                value = userName,
+                onValueChange = { userName = it; rel.userName = it },
+                label = { Text("Your name") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+            androidx.compose.material3.OutlinedTextField(
+                value = callName,
+                onValueChange = { callName = it; rel.callName = it },
+                label = { Text("What she calls you (jaan, babu...)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+            androidx.compose.material3.OutlinedTextField(
+                value = birthday,
+                onValueChange = { birthday = it; rel.birthday = it },
+                label = { Text("Your birthday (DD-MM, like 15-08)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+            androidx.compose.material3.OutlinedTextField(
+                value = special,
+                onValueChange = { special = it; rel.specialDay = it },
+                label = { Text("A special day (DD-MM)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+            androidx.compose.material3.OutlinedTextField(
+                value = specialName,
+                onValueChange = { specialName = it; rel.specialDayName = it },
+                label = { Text("Its name (Anniversary, ...)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+            androidx.compose.material3.OutlinedTextField(
+                value = likes,
+                onValueChange = { likes = it; rel.likes = it },
+                label = { Text("Things you like") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+            SwitchRow(
+                "Flirty",
+                "Sweet, playful flirting. Never explicit.",
+                flirty,
+            ) { on ->
+                flirty = on
+                rel.flirty = on
+            }
+            SwitchRow(
+                "Cute pout",
+                "Playful pouting and mock-sulks, never real jealousy. She never makes you feel bad for being away.",
+                cute,
+            ) { on ->
+                cute = on
+                rel.cutePout = on
+            }
         }
 
         Section("Voice and mode") {
