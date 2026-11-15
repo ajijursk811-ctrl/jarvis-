@@ -89,6 +89,10 @@
         <activity
             android:name=".ui.LiveCameraActivity"
             android:exported="false" />
+        <!-- A voice call with Masuka. -->
+        <activity
+            android:name=".ui.CallActivity"
+            android:exported="false" />
         <service
             android:name=".control.ControlService"
             android:exported="false"
@@ -125,5 +129,8 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".reminders.Wishes$WishReceiver"
+            android:exported="false" />
     </application>
 </manifest>
