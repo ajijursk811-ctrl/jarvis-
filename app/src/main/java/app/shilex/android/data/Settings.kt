@@ -24,7 +24,43 @@ class Settings(context: Context) {
         get() = prefs.getString("previous_mode", "girlfriend") ?: "girlfriend"
         set(value) = prefs.edit().putString("previous_mode", value).apply()
 
-    /** "girlfriend", "friend", "assistant" or "agent". */
+    /** What she knows about the user. Stays on the phone; goes to Gemini only inside the conversation. */
+    var userName: String
+        get() = prefs.getString("user_name", "") ?: ""
+        set(value) = prefs.edit().putString("user_name", value).apply()
+
+    var callName: String
+        get() = prefs.getString("call_name", "jaan") ?: "jaan"
+        set(value) = prefs.edit().putString("call_name", value).apply()
+
+    /** "DD-MM", for example 15-08. */
+    var birthday: String
+        get() = prefs.getString("birthday", "") ?: ""
+        set(value) = prefs.edit().putString("birthday", value).apply()
+
+    var specialDay: String
+        get() = prefs.getString("special_day", "") ?: ""
+        set(value) = prefs.edit().putString("special_day", value).apply()
+
+    var specialDayName: String
+        get() = prefs.getString("special_day_name", "") ?: ""
+        set(value) = prefs.edit().putString("special_day_name", value).apply()
+
+    var likes: String
+        get() = prefs.getString("likes", "") ?: ""
+        set(value) = prefs.edit().putString("likes", value).apply()
+
+    /** Sweet, playful flirting (never explicit). */
+    var flirty: Boolean
+        get() = prefs.getBoolean("flirty", true)
+        set(value) = prefs.edit().putBoolean("flirty", value).apply()
+
+    /** Cute pouting and mock-sulks (never real jealousy). */
+    var cutePout: Boolean
+        get() = prefs.getBoolean("cute_pout", true)
+        set(value) = prefs.edit().putBoolean("cute_pout", value).apply()
+
+    /** "girlfriend", "friend", "companion", "assistant" or "agent". */
     var mode: String
         get() = prefs.getString("mode", "girlfriend") ?: "girlfriend"
         set(value) = prefs.edit().putString("mode", value).apply()
@@ -143,6 +179,7 @@ class Settings(context: Context) {
         val MODE_LABELS = linkedMapOf(
             "girlfriend" to "Girlfriend",
             "friend" to "Friend",
+            "companion" to "Companion",
             "assistant" to "Assistant",
             "agent" to "Agent",
         )
