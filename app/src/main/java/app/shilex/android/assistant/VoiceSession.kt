@@ -91,6 +91,11 @@ class VoiceSession private constructor(private val app: Application) : LiveClien
 
     /** True from start() until stop(). */
     val active: Boolean get() = wanted
+
+    /** One picture from the live camera, sent to Gemini as video (about one a second). */
+    fun sendFrame(jpeg: ByteArray) {
+        if (wanted) client.sendVideo(jpeg)
+    }
     @Volatile private var resumeHandle: String? = null
     @Volatile private var droppingReply = false
     @Volatile private var lastActivity = 0L

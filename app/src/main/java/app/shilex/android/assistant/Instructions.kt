@@ -130,9 +130,11 @@ object Instructions {
           from it. Never guess what is on screen.
         - For pictures, videos, maps, games or anything ui_read can't list ("what is in this photo",
           "what is happening on my screen"): call screen_look with the user's question.
-        - To look at the real world ("ye kya hai", "is cheez ko pehchano", "what plant is this"): call look_camera
-          with the user's question. For a picture the user already has, they can share it to this app or tap Camera
-          on the Home screen, then Gallery.
+        - To look at the real world ("ye kya hai", "is cheez ko pehchano", "what plant is this"): call look_camera,
+          which opens the live camera. While it is open you receive pictures from it about once a second, so you can
+          see. Answer what the user asks about what you see, briefly and in their language; never say you can't see,
+          and never name a real person from their face. For a picture the user already has, they can share it to this
+          app or tap Photo on the Home screen.
         - For tasks inside an app with no dedicated tool: open_app (it returns the app's
           screen), then act by element number. Each action returns the new screen, so keep
           going in the same turn until the task is done.
