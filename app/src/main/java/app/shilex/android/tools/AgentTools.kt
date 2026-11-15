@@ -8,7 +8,7 @@ import app.shilex.android.control.ControlService
 import app.shilex.android.Diag
 import app.shilex.android.data.KeyVault
 import app.shilex.android.ui.TerminalActivity
-import app.shilex.android.ui.VisionActivity
+import app.shilex.android.ui.LiveCameraActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -82,29 +82,27 @@ object BuildSite : PhoneTool {
     }
 }
 
-/** "Masuka, ye kya hai?": opens the camera, which takes a photo after a countdown and explains it. */
+/** "Masuka, ye kya hai?": opens the live camera, so she sees what the phone sees and answers by voice. */
 object LookCamera : PhoneTool {
     override val name = "look_camera"
 
     override fun declaration() = Schema.function(
         name,
-        "Opens the phone camera so the assistant can look at something in the real world and identify it " +
-            "(\"ye kya hai\", \"is cheez ko pehchano\", \"what plant is this\"). The photo is taken by itself after a " +
-            "3 second countdown, and the answer shows on screen and is read out. Use it whenever the user wants you to look " +
-            "through the camera.",
+        "Opens the live camera so the assistant can see what the phone camera sees, like a video call, and identify " +
+            "things in the real world (\"ye kya hai\", \"is cheez ko pehchano\", \"what plant is this\"). Once it is open " +
+            "you receive pictures from it and answer by voice. Use it whenever the user wants you to look through the camera.",
         Schema.string("question", "What to find out, e.g. \"what plant is this\". Empty: identify what is seen."),
     )
 
     override suspend fun run(args: JSONObject, host: ToolHost): JSONObject {
-        val intent = Intent(host.context, VisionActivity::class.java)
-            .putExtra(VisionActivity.EXTRA_QUESTION, args.text("question"))
-            .putExtra(VisionActivity.EXTRA_AUTO, true)
+        val intent = Intent(host.context, LiveCameraActivity::class.java)
+            .putExtra(LiveCameraActivity.EXTRA_KEEP_SESSION, true)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         return host.openApp(
             intent,
             "Camera",
-            "The camera opens after you speak and takes the photo by itself in three seconds; the answer shows on screen " +
-                "and is read out. Tell the user in one short sentence to point the camera at the thing. Don't describe anything yourself.",
+            "The live camera opens after you speak. Once it is open you receive pictures from it: tell the user in one short " +
+                "sentence to point it at the thing and ask. Don't describe anything until you actually see pictures.",
         )
     }
 }
