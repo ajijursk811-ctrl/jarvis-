@@ -89,6 +89,10 @@
         <activity
             android:name=".ui.LiveCameraActivity"
             android:exported="false" />
+        <!-- The to-do list and what Masuka has learned about the user. -->
+        <activity
+            android:name=".ui.TasksActivity"
+            android:exported="false" />
         <!-- A voice call with Masuka. -->
         <activity
             android:name=".ui.CallActivity"
