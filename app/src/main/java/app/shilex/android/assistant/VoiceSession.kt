@@ -16,6 +16,7 @@ import app.shilex.android.audio.pcmLevel
 import app.shilex.android.data.KeyCheckResult
 import app.shilex.android.data.KeyVault
 import app.shilex.android.data.Settings
+import app.shilex.android.tools.TaskStore
 import app.shilex.android.data.checkGeminiKey
 import app.shilex.android.live.LiveClient
 import app.shilex.android.live.LiveEvent
@@ -247,7 +248,12 @@ class VoiceSession private constructor(private val app: Application) : LiveClien
                 if (settings.learning) Habits.get(app).summary(java.time.LocalTime.now().hour) else "",
                 settings.mode,
                 settings.girlVoice,
-                Relationship.describe(settings, java.time.ZonedDateTime.now()),
+                Relationship.describe(
+                    settings,
+                    java.time.ZonedDateTime.now(),
+                    TaskStore.preferences(app),
+                    TaskStore.tasks(app).filter { !it.done }.map { it.title },
+                ),
                 settings.flirty,
                 settings.cutePout,
             ),

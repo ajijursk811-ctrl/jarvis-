@@ -9,7 +9,12 @@ import java.time.ZonedDateTime
  * instructions. It stays on the phone and only goes to Gemini inside the conversation.
  */
 object Relationship {
-    fun describe(settings: Settings, now: ZonedDateTime): String {
+    fun describe(
+        settings: Settings,
+        now: ZonedDateTime,
+        learned: List<String> = emptyList(),
+        openTasks: List<String> = emptyList(),
+    ): String {
         val parts = ArrayList<String>()
         val name = settings.userName.trim()
         if (name.isNotEmpty()) parts += "The user's name is $name."
@@ -17,6 +22,14 @@ object Relationship {
         parts += "You call them \"$pet\" (say their name or this pet name now and then, not in every sentence)."
         val likes = settings.likes.trim()
         if (likes.isNotEmpty()) parts += "Things they like: ${likes.take(300)}."
+
+        if (learned.isNotEmpty()) {
+            parts += "What you have learned about their preferences (use it for recommendations and suggestions; don't " +
+                "recite it back unless it helps): ${learned.takeLast(25).joinToString("; ")}."
+        }
+        if (openTasks.isNotEmpty()) {
+            parts += "Their open tasks: ${openTasks.take(8).joinToString("; ")}. Remind them gently only when it fits, never nag."
+        }
 
         val birthday = settings.birthday.trim()
         if (birthday.isNotEmpty()) {
