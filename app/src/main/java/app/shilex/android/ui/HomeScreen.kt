@@ -52,6 +52,9 @@ import app.shilex.android.Branding
 import app.shilex.android.assistant.Line
 import app.shilex.android.assistant.Phase
 import app.shilex.android.assistant.UiState
+import app.shilex.android.assistant.VoiceSession
+import app.shilex.android.tools.TaskStore
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.shilex.android.data.Settings as AppSettings
 import app.shilex.android.learn.HabitKeys
 import app.shilex.android.local.ActivityLog
@@ -172,6 +175,7 @@ fun HomeScreen(
         if (state.phase != Phase.Off && state.lines.isNotEmpty()) {
             Conversation(state.lines, Modifier.fillMaxWidth().weight(1f))
         } else {
+            Suggestions(onStart)
             QuickActions(onQuick, favourites)
             Spacer(Modifier.height(16.dp))
             Recent(activity.take(2), onSeeActivity)
@@ -269,6 +273,31 @@ private const val TASK_SHOWN_MS = 2 * 60_000L
 
 /** A soft dark edge so the words stay readable on top of the character and the wallpaper. */
 private val TEXT_SHADOW = Shadow(Color.Black, Offset(0f, 2f), 10f)
+
+/** Smart suggestions: Tasks, and one idea that fits the time of day. Tapping the idea starts a talk with it. */
+@Composable
+private fun Suggestions(onStart: () -> Unit) {
+    val context = LocalContext.current
+    val version by TaskStore.version.collectAsStateWithLifecycle()
+    val open = remember(version) { TaskStore.tasks(context).count { !it.done } }
+    val hour = remember { java.time.LocalTime.now().hour }
+    val (label, prompt) = when (hour) {
+        in 5..11 -> "Aaj ka plan" to "Mere liye aaj ka plan banao aur tasks mein daalo."
+        in 12..17 -> "Kuch recommend karo" to "Mujhe kuch recommend karo (khana, gaana ya movie), meri pasand ke hisaab se."
+        in 18..21 -> "Shaam ka idea" to "Aaj shaam ke liye mujhe kuch achha idea do."
+        else -> "Kal ka plan" to "Kal ka plan banane mein meri madad karo."
+    }
+    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+        AgentChip(false, if (open > 0) "Tasks ($open)" else "Tasks") {
+            context.startActivity(Intent(context, TasksActivity::class.java))
+        }
+        AgentChip(false, label) {
+            val mic = context.checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) ==
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+            if (mic) VoiceSession.get(context).start(prompt) else onStart()
+        }
+    }
+}
 
 /** Top-right button: switches agent mode (research, build a site and preview it, do tasks) on and off. */
 @Composable
