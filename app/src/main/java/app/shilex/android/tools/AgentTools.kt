@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit
  * HTML file, built in the background by the terminal and opened in Chrome).
  */
 object AgentTools {
-    fun all(): List<PhoneTool> = listOf(Research, BuildSite, LockPhone, LookCamera)
+    fun all(): List<PhoneTool> = listOf(Research, BuildSite, LockPhone, LookCamera) + PlannerTools.all()
 }
 
 object Research : PhoneTool {
