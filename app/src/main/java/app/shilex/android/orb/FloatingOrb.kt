@@ -25,6 +25,7 @@ import app.shilex.android.assistant.Phase
 import app.shilex.android.assistant.VoiceSession
 import app.shilex.android.data.Settings
 import app.shilex.android.ui.AvatarSprite
+import app.shilex.android.ui.Orb
 import app.shilex.android.ui.ShilexTheme
 import kotlin.math.roundToInt
 
@@ -53,8 +54,13 @@ object FloatingOrb {
         val windows = context.getSystemService(WindowManager::class.java)
         val settings = Settings(context)
         val screen = context.resources.displayMetrics
-        val height = (settings.floatingSize * screen.density).roundToInt().coerceAtMost(screen.heightPixels)
-        val width = (height * 9f / 16f).roundToInt()
+        val button = settings.floatingStyle == "button"
+        val height = if (button) {
+            (64 * screen.density).roundToInt()
+        } else {
+            (settings.floatingSize * screen.density).roundToInt().coerceAtMost(screen.heightPixels)
+        }
+        val width = if (button) height else (height * 9f / 16f).roundToInt()
         val p = WindowManager.LayoutParams(
             width,
             height,
@@ -91,7 +97,7 @@ object FloatingOrb {
                             )
                         },
                 ) {
-                    AvatarSprite(state.phase, Modifier.fillMaxSize())
+                    if (button) Orb(state.phase, Modifier.fillMaxSize(), level) else AvatarSprite(state.phase, Modifier.fillMaxSize())
                 }
             }
         }
