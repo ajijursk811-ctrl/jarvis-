@@ -2,6 +2,7 @@ package app.shilex.android.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
@@ -9,6 +10,9 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -33,24 +37,7 @@ private val Dark = darkColorScheme(
     outlineVariant = Color(0xFF1F2836),
     error = Color(0xFFFF8A80),
 )
-private val Masuka = darkColorScheme(
-    primary = Color(0xFFB794FF),
-    onPrimary = Color(0xFF1B0B3F),
-    primaryContainer = Color(0xFF2E1B66),
-    onPrimaryContainer = Color(0xFFE9DDFF),
-    secondary = Color(0xFF9FA8FF),
-    tertiary = Color(0xFFFF7EB6),
-    background = Color(0xFF0A0620),
-    onBackground = Color(0xFFEDE8FF),
-    surface = Color(0xFF0A0620),
-    onSurface = Color(0xFFEDE8FF),
-    surfaceVariant = Color(0xFF1B1240),
-    onSurfaceVariant = Color(0xFFA99FD6),
-    surfaceContainer = Color(0xFF150D33),
-    outline = Color(0xFF3F3280),
-    outlineVariant = Color(0xFF2A2056),
-    error = Color(0xFFFF8A80),
-)
+
 private val Light = lightColorScheme(
     primary = Color(0xFF00708A),
     onPrimary = Color.White,
@@ -89,11 +76,47 @@ private val Corners = Shapes(
     large = RoundedCornerShape(24.dp),
 )
 
-/** Follows the phone's light or dark setting. */
+/** Which look the user picked in Settings. App sets it at start and Settings changes it live. */
+object ThemePrefs {
+    var index: Int by mutableIntStateOf(0)
+    val names = listOf("Violet night", "Ocean", "Rose", "Forest", "Sunset")
+}
+
+private fun night(
+    primary: Long, onPrimary: Long, container: Long, onContainer: Long, secondary: Long, tertiary: Long,
+    background: Long, text: Long, variant: Long, muted: Long, raised: Long, outline: Long, outlineVariant: Long,
+): ColorScheme = darkColorScheme(
+    primary = Color(primary),
+    onPrimary = Color(onPrimary),
+    primaryContainer = Color(container),
+    onPrimaryContainer = Color(onContainer),
+    secondary = Color(secondary),
+    tertiary = Color(tertiary),
+    background = Color(background),
+    onBackground = Color(text),
+    surface = Color(background),
+    onSurface = Color(text),
+    surfaceVariant = Color(variant),
+    onSurfaceVariant = Color(muted),
+    surfaceContainer = Color(raised),
+    outline = Color(outline),
+    outlineVariant = Color(outlineVariant),
+    error = Color(0xFFFF8A80),
+)
+
+private val Themes: List<ColorScheme> = listOf(
+    night(0xFFB794FF, 0xFF1B0B3F, 0xFF2E1B66, 0xFFE9DDFF, 0xFF9FA8FF, 0xFFFF7EB6, 0xFF0A0620, 0xFFEDE8FF, 0xFF1B1240, 0xFFA99FD6, 0xFF150D33, 0xFF3F3280, 0xFF2A2056),
+    night(0xFF5BC8FF, 0xFF00263A, 0xFF0A3A55, 0xFFD3F0FF, 0xFF7FA8FF, 0xFF6FFFE0, 0xFF04101C, 0xFFE6F4FF, 0xFF0C2236, 0xFF9BB8CF, 0xFF081A2B, 0xFF2A4C6B, 0xFF1B3550),
+    night(0xFFFF8CC6, 0xFF3F0A26, 0xFF5E1B3F, 0xFFFFD9EA, 0xFFFFA8A8, 0xFFFFC857, 0xFF160610, 0xFFFFEAF4, 0xFF2B1020, 0xFFD9A8C2, 0xFF21101B, 0xFF6B3452, 0xFF482338),
+    night(0xFF7CE0A0, 0xFF06301A, 0xFF14502E, 0xFFD2FFE2, 0xFFB4E87C, 0xFFFFD36B, 0xFF05120A, 0xFFE8FFF0, 0xFF10271A, 0xFF9FC4AE, 0xFF0B1D13, 0xFF2F5B42, 0xFF1E3E2D),
+    night(0xFFFFA45C, 0xFF3A1900, 0xFF5E3000, 0xFFFFDDBF, 0xFFFF7E6B, 0xFFFFD36B, 0xFF150A06, 0xFFFFEFE6, 0xFF2B1810, 0xFFD9B3A0, 0xFF21130D, 0xFF6B4630, 0xFF482F21),
+)
+
+/** The look the user picked in Settings (always dark). */
 @Composable
 fun ShilexTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = Masuka,
+        colorScheme = Themes[ThemePrefs.index.coerceIn(0, Themes.lastIndex)],
         typography = Type,
         shapes = Corners,
         content = content,

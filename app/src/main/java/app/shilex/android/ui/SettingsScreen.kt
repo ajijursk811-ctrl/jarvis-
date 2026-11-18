@@ -118,6 +118,71 @@ fun SettingsScreen(assistant: AssistantViewModel) {
                 },
                 valueRange = 120f..420f,
             )
+            var style by remember { mutableStateOf(prefs.floatingStyle) }
+            Text("Floating style", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 12.dp))
+            listOf("character" to "Ladki (character)", "button" to "Chhota gol button").forEach { (key, label) ->
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    androidx.compose.material3.RadioButton(
+                        selected = style == key,
+                        onClick = {
+                            style = key
+                            prefs.floatingStyle = key
+                            FloatingOrb.reload(context)
+                        },
+                    )
+                    Text(label)
+                }
+            }
+        }
+
+        Section("Personalize") {
+            val me = remember { AppSettings(context) }
+            var aiName by remember { mutableStateOf(me.assistantName) }
+            var themeIndex by remember { mutableStateOf(me.themeIndex) }
+            var language by remember { mutableStateOf(me.replyLanguage) }
+            androidx.compose.material3.OutlinedTextField(
+                value = aiName,
+                onValueChange = {
+                    aiName = it
+                    me.assistantName = it
+                    Branding.ASSISTANT_NAME = it.trim().ifEmpty { Branding.DEFAULT_NAME }
+                },
+                label = { Text("AI ka naam") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+            Text("Theme", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
+            ThemePrefs.names.forEachIndexed { i, label ->
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    androidx.compose.material3.RadioButton(
+                        selected = themeIndex == i,
+                        onClick = {
+                            themeIndex = i
+                            me.themeIndex = i
+                            ThemePrefs.index = i
+                        },
+                    )
+                    Text(label)
+                }
+            }
+            Text("Bhasha (language)", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
+            AppSettings.LANGUAGES.forEach { (key, label) ->
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    androidx.compose.material3.RadioButton(
+                        selected = language == key,
+                        onClick = {
+                            language = key
+                            me.replyLanguage = key
+                        },
+                    )
+                    Text(label)
+                }
+            }
+            Text(
+                "Naam, theme aur bhasha agli baat-cheet se poori tarah lagte hain.",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 8.dp),
+            )
         }
 
         Section("Relationship") {
@@ -251,12 +316,22 @@ fun SettingsScreen(assistant: AssistantViewModel) {
                 voice = if (on) AppSettings.GIRL_VOICES.first() else AppSettings.BOY_VOICES.first()
                 vm.voice = voice
             }
-            InfoRow("Voice name", voice) {
-                TextButton(onClick = {
-                    val list = if (girl) AppSettings.GIRL_VOICES else AppSettings.BOY_VOICES
-                    voice = list[(list.indexOf(voice) + 1) % list.size]
-                    vm.voice = voice
-                }) { Text("Change") }
+            Text(
+                if (girl) "Ladki ki awaaz chuno" else "Ladke ki awaaz chuno",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 12.dp),
+            )
+            (if (girl) AppSettings.GIRL_VOICES else AppSettings.BOY_VOICES).forEach { name ->
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    androidx.compose.material3.RadioButton(
+                        selected = voice == name,
+                        onClick = {
+                            voice = name
+                            vm.voice = name
+                        },
+                    )
+                    Text("$name  (${AppSettings.VOICE_HINTS[name].orEmpty()})")
+                }
             }
             InfoRow("Mode", AppSettings.MODE_LABELS[mode] ?: "Girlfriend") {
                 TextButton(onClick = {
