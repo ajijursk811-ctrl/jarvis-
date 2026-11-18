@@ -11,6 +11,9 @@ import app.shilex.android.orb.FloatingOrb
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
+        val saved = app.shilex.android.data.Settings(this)
+        Branding.ASSISTANT_NAME = saved.assistantName.trim().ifEmpty { Branding.DEFAULT_NAME }
+        app.shilex.android.ui.ThemePrefs.index = saved.themeIndex
         Diag.start(DiagFile(filesDir))
         FloatingOrb.sync(this)
         app.shilex.android.orb.BorderLight.sync(this)
