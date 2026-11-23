@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <!-- A2 phone basics: contacts for calls and messages, Clock app alarms, reminders. -->
@@ -93,6 +95,15 @@
         <activity
             android:name=".ui.TasksActivity"
             android:exported="false" />
+        <!-- Shake to wake: reads only the motion sensor, never the microphone. -->
+        <service
+            android:name=".assistant.ShakeService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Listens to the motion sensor for a shake gesture that opens the assistant." />
+        </service>
         <!-- A voice call with Masuka. -->
         <activity
             android:name=".ui.CallActivity"
