@@ -18,5 +18,6 @@ class App : Application() {
         FloatingOrb.sync(this)
         app.shilex.android.orb.BorderLight.sync(this)
         app.shilex.android.reminders.Wishes.schedule(this)
+        app.shilex.android.assistant.ShakeWake.sync(this)
     }
 }
