@@ -260,6 +260,47 @@ fun SettingsScreen(assistant: AssistantViewModel) {
             }
         }
 
+        Section("Shake to wake") {
+            val shake = remember { AppSettings(context) }
+            var shakeOn by remember { mutableStateOf(shake.shakeWake) }
+            var level by remember { mutableStateOf(shake.shakeSensitivity) }
+            val askNotice = androidx.activity.compose.rememberLauncherForActivityResult(
+                androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
+            ) { }
+            SwitchRow(
+                "Shake to wake ${Branding.ASSISTANT_NAME}",
+                "Shake the phone and she wakes up and starts listening. Only the motion sensor is on until you shake, so the green mic dot shows only after the shake. It works while the phone is on and unlocked (a phone in a pocket does nothing). Needs \"Display over other apps\" and a small notification that stays.",
+                shakeOn,
+            ) { on ->
+                shakeOn = on
+                shake.shakeWake = on
+                if (on && android.os.Build.VERSION.SDK_INT >= 33) {
+                    askNotice.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+                if (on && !FloatingOrb.allowed(context)) {
+                    context.startActivity(
+                        Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    )
+                }
+                app.shilex.android.assistant.ShakeWake.sync(context)
+            }
+            Text("Kitna zor se hilana hai", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 12.dp))
+            listOf(0 to "Zor se (galti se kam jagegi)", 1 to "Normal", 2 to "Halka (aasani se jagegi)").forEach { (value, label) ->
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    androidx.compose.material3.RadioButton(
+                        selected = level == value,
+                        onClick = {
+                            level = value
+                            shake.shakeSensitivity = value
+                            app.shilex.android.assistant.ShakeWake.sync(context)
+                        },
+                    )
+                    Text(label)
+                }
+            }
+        }
+
         Section("Sweet wishes") {
             val wish = remember { AppSettings(context) }
             var wishOn by remember { mutableStateOf(wish.wishes) }
