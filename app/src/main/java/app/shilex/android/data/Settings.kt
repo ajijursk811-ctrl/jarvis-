@@ -25,6 +25,16 @@ class Settings(context: Context) {
         get() = prefs.getString("previous_mode", "girlfriend") ?: "girlfriend"
         set(value) = prefs.edit().putString("previous_mode", value).apply()
 
+    /** Shake the phone to wake the assistant (needs a small notification that stays). */
+    var shakeWake: Boolean
+        get() = prefs.getBoolean("shake_wake", false)
+        set(value) = prefs.edit().putBoolean("shake_wake", value).apply()
+
+    /** 0 = hard shake, 1 = normal, 2 = light. */
+    var shakeSensitivity: Int
+        get() = prefs.getInt("shake_sensitivity", 1)
+        set(value) = prefs.edit().putInt("shake_sensitivity", value).apply()
+
     /** The assistant's name, shown in the app and used in her instructions. */
     var assistantName: String
         get() = prefs.getString("assistant_name", Branding.DEFAULT_NAME) ?: Branding.DEFAULT_NAME
